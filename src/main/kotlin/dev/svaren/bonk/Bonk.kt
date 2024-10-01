@@ -52,6 +52,7 @@ class Bonk : ModInitializer {
                         0.01
                     )
                     serverWorld.playSoundFromEntity(
+                        null,
                         villager,
                         SoundEvents.BLOCK_NOTE_BLOCK_COW_BELL.value(),
                         SoundCategory.NEUTRAL,
@@ -73,6 +74,7 @@ class Bonk : ModInitializer {
                         0.01
                     )
                     serverWorld.playSoundFromEntity(
+                        null,
                         villager,
                         SoundEvents.BLOCK_NOTE_BLOCK_COW_BELL.value(),
                         SoundCategory.NEUTRAL,
@@ -107,6 +109,7 @@ class Bonk : ModInitializer {
                     0.8
                 )
                 serverWorld.playSoundFromEntity(
+                    null,
                     villager,
                     SoundEvents.ITEM_MACE_SMASH_AIR,
                     SoundCategory.NEUTRAL,
@@ -114,6 +117,7 @@ class Bonk : ModInitializer {
                     1.0f
                 )
                 serverWorld.playSoundFromEntity(
+                    null,
                     villager,
                     SoundEvents.BLOCK_NOTE_BLOCK_COW_BELL.value(),
                     SoundCategory.NEUTRAL,

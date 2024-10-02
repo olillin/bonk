@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "bonk",
   "description": "",
-  "authors": [],
+  "authors": ["Alve Svaren", "Oli"],
   "contact": {},
   "license": "MIT",
   "icon": "assets/bonk/icon.png",
@@ -25,6 +25,6 @@
     "fabricloader": ">=${loader_version}",
     "fabric-language-kotlin": ">=${kotlin_loader_version}",
     "fabric": "*",
-    "minecraft": "${minecraft_version}"
+    "minecraft": "${supported_minecraft_version}"
   }
 }

@@ -24,8 +24,8 @@ And if you're a server admin the best news is yet to come: The mod is entirely
 server-side, your players don't need to install anything!
 
 Sounds like quite the great mod doesn't it? We're still working on a system to
-encourage villagers to get a certain trade, but until then head to the
-[releases page](./releases/latest) and check it out!
+encourage villagers to get a certain trade, but until then head to the [latest
+release](https://github.com/alvesvaren/bonk/releases/latest) and check it out!
 
 ## TLDR;
 

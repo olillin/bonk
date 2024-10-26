@@ -14,12 +14,7 @@
       "dev.svaren.bonk.Bonk"
     ]
   },
-  "mixins": [
-    "bonk.mixins.json",
-    {
-      "config": "bonk.client.mixins.json",
-      "environment": "client"
-    }
+  "mixins": ["bonk.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",

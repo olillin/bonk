@@ -4,11 +4,9 @@
   "package": "dev.svaren.bonk.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "VillagerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "server": [
-    "VillagerEntityMixin"
-  ]
+  }
 }

@@ -6,6 +6,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -43,7 +44,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Unco
         }
     }
 
-    @Inject(method = "mobTick()V", at = @At("HEAD"))
+    @Inject(method = "mobTick(Lnet/minecraft/server/world/ServerWorld;)V", at = @At("HEAD"))
     private void injectMobTick(CallbackInfo ci) {
         if (!this.isSleeping() && unconsciousTime > 0) {
             this.setAiDisabled(true);
@@ -54,8 +55,8 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Unco
         }
     }
 
-    public boolean damage(DamageSource source, float amount) {
+    public boolean damage(ServerWorld world, DamageSource source, float amount) {
         unconsciousTime = 0;
-        return super.damage(source, amount);
+        return super.damage(world, source, amount);
     }
 }

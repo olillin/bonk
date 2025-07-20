@@ -6,11 +6,13 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.passive.VillagerEntity
 import net.minecraft.item.Items
+import net.minecraft.network.message.MessageType
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.registry.tag.ItemTags
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
+import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.village.VillagerData
 import net.minecraft.village.VillagerProfession
@@ -57,7 +59,7 @@ class Bonk : ModInitializer {
         villager: VillagerEntity
     ): Boolean {
         val canBeBonked: Boolean =
-            villager.villagerData.profession != VillagerProfession.NONE && villager.experience == 0
+            !villager.villagerData.profession.matchesKey(VillagerProfession.NONE) && villager.experience == 0
 
         if (!canBeBonked) {
             failBonk(villager)

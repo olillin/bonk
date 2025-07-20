@@ -7,7 +7,7 @@ plugins {
     id("maven-publish")
 }
 
-version = project.property("mod_version") as String
+version = "${project.property("mod_version")}+mc${project.property("minecraft_version")}"
 group = project.property("maven_group") as String
 
 base {
@@ -20,7 +20,7 @@ java {
     // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
     // if it is present.
     // If you remove this line, sources will not be generated.
-    withSourcesJar()
+//    withSourcesJar()
 }
 
 loom {
@@ -83,8 +83,8 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 tasks.jar {
-    from("LICENSE") {
-        rename { "${it}_${project.base.archivesName}" }
+    from("LICENSE.txt") {
+        rename { "LICENSE_${project.base.archivesName.get()}" }
     }
 }
 

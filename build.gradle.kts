@@ -2,8 +2,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.2.20"
-    id("fabric-loom") version "1.11-SNAPSHOT"
+    kotlin("jvm") version "2.3.0"
+    id("fabric-loom") version "1.14-SNAPSHOT"
     id("maven-publish")
 }
 
@@ -49,7 +49,7 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${project.property("loader_version")}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${project.property("kotlin_loader_version")}")
 
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_api_version")}")
 }
 
 tasks.processResources {

@@ -1,7 +1,10 @@
 package dev.svaren.bonk
 
+import com.github.quiltservertools.ledger.Ledger
+import dev.svaren.bonk.ledger.ActionFactory
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.npc.villager.Villager
@@ -15,6 +18,7 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.npc.villager.AbstractVillager
 import net.minecraft.world.entity.npc.villager.VillagerData
 import net.minecraft.world.entity.npc.villager.VillagerProfession
+import net.minecraft.world.entity.player.Player
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -36,9 +40,9 @@ class Bonk : ModInitializer {
             val villager = entity as Villager
 
             if (handItem.`is`(ItemTags.SHOVELS)) {
-                bonkVillager(villager)
+                bonkVillager(player, villager)
             } else if (handItem.item == Items.MACE) {
-                blamVillager(villager)
+                blamVillager(player, villager)
             } else {
                 return InteractionResult.PASS
             }
@@ -55,6 +59,7 @@ class Bonk : ModInitializer {
      * @return `true` if the bonk was successful, otherwise `false`.
      */
     private fun bonkVillager(
+        player: Player,
         villager: Villager
     ): Boolean {
         val canBeBonked: Boolean =
@@ -64,6 +69,8 @@ class Bonk : ModInitializer {
             failBonk(villager)
             return false
         }
+
+        logBonk(player, villager)
 
         val serverWorld = villager.level() as ServerLevel
 
@@ -88,7 +95,9 @@ class Bonk : ModInitializer {
     }
 
     /** A BLAM is like a bonk but will always succeed and makes the villager unconscious for a short time. */
-    private fun blamVillager(villager: Villager) {
+    private fun blamVillager(player: Player, villager: Villager) {
+        logBlam(player, villager)
+
         (villager as UnconciousEntity).unconsciousTime = 60
 
         val serverWorld = villager.level() as ServerLevel
@@ -128,6 +137,22 @@ class Bonk : ModInitializer {
         serverWorld.playSound(
             null, entity, SoundEvents.MACE_SMASH_AIR, SoundSource.NEUTRAL, 0.5f, 1.0f
         )
+    }
+
+    private fun logBonk(player: Player, villager: Villager) {
+        if (!FabricLoader.getInstance().isModLoaded("ledger")) return
+
+        val action = ActionFactory.bonkAction(villager.level(), villager.blockPosition(), villager, player)
+        Ledger.api.logAction(action)
+        // TODO: Track change
+    }
+
+    private fun logBlam(player: Player, villager: Villager) {
+        if (!FabricLoader.getInstance().isModLoaded("ledger")) return
+
+        val action = ActionFactory.blamAction(villager.level(), villager.blockPosition(), villager, player)
+        Ledger.api.logAction(action)
+        // TODO: Track change
     }
 }
 

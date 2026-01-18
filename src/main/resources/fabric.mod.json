@@ -18,8 +18,7 @@
       "dev.svaren.bonk.Bonk"
     ]
   },
-  "mixins": ["bonk.mixins.json"
-  ],
+  "mixins": ["bonk.mixins.json", "bonk-ledger.mixins.json" ],
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric-language-kotlin": ">=${kotlin_loader_version}",

@@ -2,18 +2,19 @@ package dev.svaren.bonk
 
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback
-import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityType
-import net.minecraft.entity.passive.VillagerEntity
-import net.minecraft.item.Items
-import net.minecraft.particle.ParticleTypes
-import net.minecraft.registry.tag.ItemTags
-import net.minecraft.server.world.ServerWorld
-import net.minecraft.sound.SoundCategory
-import net.minecraft.sound.SoundEvents
-import net.minecraft.util.ActionResult
-import net.minecraft.village.VillagerData
-import net.minecraft.village.VillagerProfession
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.npc.villager.Villager
+import net.minecraft.world.item.Items
+import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.tags.ItemTags
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.sounds.SoundSource
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.entity.npc.villager.AbstractVillager
+import net.minecraft.world.entity.npc.villager.VillagerData
+import net.minecraft.world.entity.npc.villager.VillagerProfession
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -22,28 +23,28 @@ class Bonk : ModInitializer {
     private val logger: Logger = LoggerFactory.getLogger("BONK")
 
     override fun onInitialize() {
-        AttackEntityCallback.EVENT.register(fun(player, world, hand, entity, _): ActionResult {
-            val handItem = player.getStackInHand(hand)
+        AttackEntityCallback.EVENT.register(fun(player, world, hand, entity, _): InteractionResult {
+            val handItem = player.getItemInHand(hand)
 
-            if (!(handItem.isIn(ItemTags.SHOVELS) || handItem.item == Items.MACE)
+            if (!(handItem.`is`(ItemTags.SHOVELS) || handItem.item == Items.MACE)
                 || entity.type != EntityType.VILLAGER
                 || world.server == null
             ) {
-                return ActionResult.PASS
+                return InteractionResult.PASS
             }
 
-            val villager = entity as VillagerEntity
+            val villager = entity as Villager
 
-            if (handItem.isIn(ItemTags.SHOVELS)) {
+            if (handItem.`is`(ItemTags.SHOVELS)) {
                 bonkVillager(villager)
             } else if (handItem.item == Items.MACE) {
                 blamVillager(villager)
             } else {
-                return ActionResult.PASS
+                return InteractionResult.PASS
             }
 
             // Cancel the hit
-            return ActionResult.FAIL
+            return InteractionResult.FAIL
         })
 
         logger.info("Initialized!")
@@ -54,17 +55,17 @@ class Bonk : ModInitializer {
      * @return `true` if the bonk was successful, otherwise `false`.
      */
     private fun bonkVillager(
-        villager: VillagerEntity
+        villager: Villager
     ): Boolean {
         val canBeBonked: Boolean =
-            !villager.villagerData.profession.matchesKey(VillagerProfession.NONE) && villager.experience == 0
+            !villager.villagerData.profession.`is`(VillagerProfession.NONE) && villager.villagerXp == 0
 
         if (!canBeBonked) {
             failBonk(villager)
             return false
         }
 
-        val serverWorld = villager.entityWorld as ServerWorld
+        val serverWorld = villager.level() as ServerLevel
 
         spawnBonkParticles(serverWorld, villager)
         playBonkSounds(serverWorld, villager)
@@ -75,64 +76,64 @@ class Bonk : ModInitializer {
     }
 
     /** Play effects for a bonk that has failed. */
-    private fun failBonk(villager: VillagerEntity) {
-        val serverWorld = villager.entityWorld as ServerWorld
+    private fun failBonk(villager: Villager) {
+        val serverWorld = villager.level() as ServerLevel
 
-        serverWorld.spawnParticles(
+        serverWorld.sendParticles(
             ParticleTypes.ANGRY_VILLAGER, villager.x, villager.y + 1.5, villager.z, 1, 0.0, 0.0, 0.0, 0.01
         )
-        serverWorld.playSoundFromEntity(
-            null, villager, SoundEvents.BLOCK_NOTE_BLOCK_COW_BELL.value(), SoundCategory.NEUTRAL, 1f, 0f
+        serverWorld.playSound(
+            null, villager, SoundEvents.NOTE_BLOCK_COW_BELL.value(), SoundSource.NEUTRAL, 1f, 0f
         )
     }
 
     /** A BLAM is like a bonk but will always succeed and makes the villager unconscious for a short time. */
-    private fun blamVillager(villager: VillagerEntity) {
+    private fun blamVillager(villager: Villager) {
         (villager as UnconciousEntity).unconsciousTime = 60
 
-        val serverWorld = villager.entityWorld as ServerWorld
+        val serverWorld = villager.level() as ServerLevel
 
         spawnBlamParticles(serverWorld, villager)
         playBlamSounds(serverWorld, villager)
 
         villager.resetOffers()
-        villager.gossip.clear()
+        villager.gossips.clear()
     }
 
-    private fun spawnBonkParticles(serverWorld: ServerWorld, entity: Entity) {
-        serverWorld.spawnParticles(
+    private fun spawnBonkParticles(serverWorld: ServerLevel, entity: Entity) {
+        serverWorld.sendParticles(
             ParticleTypes.POOF, entity.x, entity.y + 1.5, entity.z, 8, 0.2, 0.2, 0.2, 0.01
         )
     }
 
     private fun playBonkSounds(
-        serverWorld: ServerWorld, entity: Entity
+        serverWorld: ServerLevel, entity: Entity
     ) {
-        serverWorld.playSoundFromEntity(
-            null, entity, SoundEvents.BLOCK_NOTE_BLOCK_COW_BELL.value(), SoundCategory.NEUTRAL, 1f, 0.7f
+        serverWorld.playSound(
+            null, entity, SoundEvents.NOTE_BLOCK_COW_BELL.value(), SoundSource.NEUTRAL, 1f, 0.7f
         )
     }
 
-    private fun spawnBlamParticles(serverWorld: ServerWorld, entity: Entity) {
+    private fun spawnBlamParticles(serverWorld: ServerLevel, entity: Entity) {
         spawnBonkParticles(serverWorld, entity)
-        serverWorld.spawnParticles(
+        serverWorld.sendParticles(
             ParticleTypes.ELECTRIC_SPARK, entity.x, entity.y + 1.5, entity.z, 20, 0.0, 0.0, 0.0, 0.8
         )
     }
 
     private fun playBlamSounds(
-        serverWorld: ServerWorld, entity: Entity
+        serverWorld: ServerLevel, entity: Entity
     ) {
         playBonkSounds(serverWorld, entity)
-        serverWorld.playSoundFromEntity(
-            null, entity, SoundEvents.ITEM_MACE_SMASH_AIR, SoundCategory.NEUTRAL, 0.5f, 1.0f
+        serverWorld.playSound(
+            null, entity, SoundEvents.MACE_SMASH_AIR, SoundSource.NEUTRAL, 0.5f, 1.0f
         )
     }
 }
 
 /** Reset trade offers and profession progress. */
-fun VillagerEntity.resetOffers() {
-    offers = null
-    experience = 0
+fun Villager.resetOffers() {
+    AbstractVillager::class.java.getDeclaredField("offers").set(this, null)
+    villagerXp = 0
     villagerData = VillagerData(villagerData.type, villagerData.profession, 0)
 }

@@ -27,6 +27,6 @@
     "minecraft": ">=${supported_minecraft_version}"
   },
   "suggests": {
-    "ledger": ">=${ledge_version}"
+    "ledger": ">=${ledger_version}"
   }
 }

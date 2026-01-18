@@ -61,3 +61,5 @@ kotlin-ide/
 .teamcity/
 
 run/
+.envrc
+.direnv

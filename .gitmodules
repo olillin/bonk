@@ -1,3 +1,0 @@
-[submodule "lib/ledger"]
-	path = lib/ledger
-	url = https://github.com/QuiltServerTools/Ledger

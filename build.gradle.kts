@@ -50,6 +50,9 @@ dependencies {
     modImplementation("net.fabricmc:fabric-language-kotlin:${project.property("kotlin_loader_version")}")
 
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_api_version")}")
+
+    // Optional dependency on Ledger
+    modCompileOnly("com.github.quiltservertools:ledger:${project.property("ledger_version")}")
 }
 
 tasks.processResources {

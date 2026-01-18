@@ -6,3 +6,5 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
+includeBuild("./lib/ledger")

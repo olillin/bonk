@@ -25,5 +25,8 @@
     "fabric-language-kotlin": ">=${kotlin_loader_version}",
     "fabric": "*",
     "minecraft": ">=${supported_minecraft_version}"
+  },
+  "suggests": {
+    "ledger": ">=${ledge_version}"
   }
 }

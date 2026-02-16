@@ -1,39 +1,42 @@
 package dev.svaren.bonk.ledger
 
 import com.github.quiltservertools.ledger.actions.ActionType
-import com.github.quiltservertools.ledger.utility.NbtUtils.createNbt
 import com.github.quiltservertools.ledger.utility.Sources
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.world.entity.Entity
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.entity.npc.villager.Villager
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
 
 object ActionFactory {
-    fun bonkAction(world: Level, pos: BlockPos, entity: Entity, player: Player): BonkActionType {
+    fun bonkAction(world: Level, pos: BlockPos, villager: Villager, player: Player, oldState: CompoundTag, newState: CompoundTag): BonkActionType {
         val action = BonkActionType()
-        setEntityData(action, pos, world, entity, player)
+        setVillagerData(action, world, pos, villager, player, oldState, newState)
         return action
     }
 
-    fun blamAction(world: Level, pos: BlockPos, entity: Entity, player: Player): BlamActionType {
+    fun blamAction(world: Level, pos: BlockPos, villager: Villager, player: Player, oldState: CompoundTag, newState: CompoundTag): BlamActionType {
         val action = BlamActionType()
-        setEntityData(action, pos, world, entity, player)
+        setVillagerData(action, world, pos, villager, player, oldState, newState)
         return action
     }
 
-    private fun setEntityData(
+    private fun setVillagerData(
         action: ActionType,
-        pos: BlockPos,
         world: Level,
-        entity: Entity,
-        player: Player
+        pos: BlockPos,
+        villager: Villager,
+        player: Player,
+        oldState: CompoundTag,
+        newState: CompoundTag
     ) {
         action.pos = pos
         action.world = world.dimension().identifier()
-        action.objectIdentifier = BuiltInRegistries.ENTITY_TYPE.getKey(entity.type)
+        action.objectIdentifier = BuiltInRegistries.ENTITY_TYPE.getKey(villager.type)
         action.sourceName = Sources.PLAYER
         action.sourceProfile = player.nameAndId()
-        action.extraData = entity.createNbt().toString()
+        action.oldObjectState = oldState.toString()
+        action.objectState = newState.toString()
     }
 }

@@ -1,6 +1,7 @@
 package dev.svaren.bonk
 
 import com.github.quiltservertools.ledger.Ledger
+import com.github.quiltservertools.ledger.utility.NbtUtils.createNbt
 import dev.svaren.bonk.ledger.ActionFactory
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback
@@ -10,6 +11,7 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.npc.villager.Villager
 import net.minecraft.world.item.Items
 import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.tags.ItemTags
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.sounds.SoundSource
@@ -70,7 +72,7 @@ class Bonk : ModInitializer {
             return false
         }
 
-        logBonk(player, villager)
+        val oldState = villager.createNbt()
 
         val serverWorld = villager.level() as ServerLevel
 
@@ -78,6 +80,8 @@ class Bonk : ModInitializer {
         playBonkSounds(serverWorld, villager)
 
         villager.resetOffers()
+
+        logBonk(player, villager, oldState)
 
         return true
     }
@@ -96,7 +100,7 @@ class Bonk : ModInitializer {
 
     /** A BLAM is like a bonk but will always succeed and makes the villager unconscious for a short time. */
     private fun blamVillager(player: Player, villager: Villager) {
-        logBlam(player, villager)
+        val oldState = villager.createNbt()
 
         (villager as UnconciousEntity).unconsciousTime = 60
 
@@ -107,6 +111,8 @@ class Bonk : ModInitializer {
 
         villager.resetOffers()
         villager.gossips.clear()
+
+        logBlam(player, villager, oldState)
     }
 
     private fun spawnBonkParticles(serverWorld: ServerLevel, entity: Entity) {
@@ -139,18 +145,20 @@ class Bonk : ModInitializer {
         )
     }
 
-    private fun logBonk(player: Player, villager: Villager) {
+    private fun logBonk(player: Player, villager: Villager, oldState: CompoundTag) {
         if (!FabricLoader.getInstance().isModLoaded("ledger")) return
 
-        val action = ActionFactory.bonkAction(villager.level(), villager.blockPosition(), villager, player)
+        val newState = villager.createNbt()
+        val action = ActionFactory.bonkAction(villager.level(), villager.blockPosition(), villager, player, oldState, newState)
         Ledger.api.logAction(action)
         // TODO: Track change
     }
 
-    private fun logBlam(player: Player, villager: Villager) {
+    private fun logBlam(player: Player, villager: Villager, oldState: CompoundTag) {
         if (!FabricLoader.getInstance().isModLoaded("ledger")) return
 
-        val action = ActionFactory.blamAction(villager.level(), villager.blockPosition(), villager, player)
+        val newState = villager.createNbt()
+        val action = ActionFactory.blamAction(villager.level(), villager.blockPosition(), villager, player, oldState, newState)
         Ledger.api.logAction(action)
         // TODO: Track change
     }
